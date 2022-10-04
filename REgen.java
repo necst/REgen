@@ -4373,6 +4373,8 @@ public class REgen {
         TextStat tstat = new TextStat();
         long reChars = 0;
         long textChars = 0;
+        //open the file for the generated RE
+        GenerateOutput output = new GenerateOutput("re_gen", "regex");
         for (int i = 0; i < regr.groups; i++){
             if ((FL_S & trc) != 0){Trc.out.printf("benchmark RE group %s nr REs %s leaves %s..%s\n",i,regr.each,i*regr.step,(i+1)*regr.step);}
             if ((FL_T & trc) != 0){Trc.out.printf("REs group %s\n",i);}
@@ -4460,8 +4462,12 @@ public class REgen {
                 regInGroup++;
                 reNr++;
                 reChars += res[i][j].length();
-                if (out != null) out.writeRE(res[i][j]);
-
+                if (out != null){
+                    out.writeRE(res[i][j]);
+                    output.writeFile(res[i][j]);
+                } 
+                //add the RE on .regex file
+                
                 if (parameters.overlap){
                     // reckon how many produce overlapping languages
                     for (String rex : reList){
@@ -4477,12 +4483,12 @@ public class REgen {
                     if (texts[i][j] == null) continue;
                     for (int k = 0; k < texts[i][j].length; k++){
                         if (texts[i][j][k] == null) continue;
-                        if (out != null) out.writeTextGroup(k);
+                        if (out != null) //out.writeTextGroup(k);
                         for (int l = 0; l < texts[i][j][k].length; l++){
                             if (texts[i][j][k][l] == null) continue;
                             textNr++;
                             textChars += texts[i][j][k][l].length();
-                            if (out != null) out.writeText(texts[i][j][k][l]);
+                            if (out != null){} //out.writeText(texts[i][j][k][l]);
                         }
                     }
                 }
@@ -4545,6 +4551,8 @@ public class REgen {
             res[i] = null;   // free space
             texts[i] = null;   // free space
         }
+        //close file for the generated RE
+        output.closeFile();
         Trc.out.printf("collection: %s, RE: %s, texts: %s\n",
             parameters.balanced?"balanced":"unbalanced",regr,textgr);
         Trc.out.printf("%s REs (should be %s) %s %%, %s generated %s discarded\n",
@@ -6792,14 +6800,14 @@ settrc("");
         //if (true) return;
 
         REgen rg = new REgen();
-        rg.parameters.size = 12;
-        rg.parameters.depth = new int[]{2,5};
+        rg.parameters.size = 42;
+        rg.parameters.depth = new int[]{30,30};
         rg.parameters.balanced = false;             // parameters.balanced = false;
         rg.parameters.starHeight = null;            // parameters.starHeight = [2,6];
-        rg.parameters.concarity = 0;                // parameters.concarity = 10;
-        rg.parameters.altarity = 0;                 // parameters.altarity = 10;
-        rg.parameters.leaves = LEAVES_TERM;         // parameters.leaves = LEAVES_TERM or LEAVES_SET
-        rg.parameters.special = null;               // parameters.special = "#@";
+        rg.parameters.concarity = 5;                // parameters.concarity = 10;
+        rg.parameters.altarity = 5;                 // parameters.altarity = 10;
+        rg.parameters.leaves = LEAVES_SET;         // parameters.leaves = LEAVES_TERM or LEAVES_SET
+        rg.parameters.special = "@#";               // parameters.special = "#@";
         rg.parameters.adjacences = null;            // parameters.adjacences = [][];
 
         class MyEmitter extends Emitter {
